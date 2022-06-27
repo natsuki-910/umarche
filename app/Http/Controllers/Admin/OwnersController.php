@@ -30,7 +30,7 @@ class OwnersController extends Controller
         // $q_get = DB::table('owners')->select('name', 'created_at')->get();
 
 
-        $owners = Owner::select('name','email', 'created_at')->get();
+        $owners = Owner::select('id','name','email', 'created_at')->get();
         return view('admin.owners.index', compact('owners'));
     }
 
@@ -87,7 +87,9 @@ class OwnersController extends Controller
      */
     public function edit($id)
     {
-        //
+        //idがなかったら404画面を表示
+        $owner = Owner::findOrFail($id);
+        return view('admin.owners.edit', compact('owner'));
     }
 
     /**
@@ -99,7 +101,16 @@ class OwnersController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        //idがなかったら404画面を表示
+        $owner = Owner::findOrFail($id);
+        $owner->name = $request->name;
+        $owner->email = $request->email;
+        $owner->password = Hash::make($request->password); //パスワードは暗号化する
+        $owner->save(); //保存
+
+        return redirect()
+        ->route('admin.owners.index')
+        ->with('message','オーナー情報を更新しました。');
     }
 
     /**
